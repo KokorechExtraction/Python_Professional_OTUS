@@ -1,7 +1,7 @@
 import gzip
-from pathlib import Path
-import structlog
+
 import pytest
+import structlog
 
 
 @pytest.fixture(scope="session")
@@ -12,7 +12,7 @@ def logger():
 @pytest.fixture
 def sample_line():
     return (
-        '1.2.3.4 - 10.0.0.1 [10/Oct/2025:13:55:36 +0300] '
+        "1.2.3.4 - 10.0.0.1 [10/Oct/2025:13:55:36 +0300] "
         '"GET /api/v2/user HTTP/1.1" 200 123 "-" "curl/7.88.1" "-" "req-123" "rb-456" 0.123\n'
     )
 
@@ -20,7 +20,7 @@ def sample_line():
 @pytest.fixture
 def sample_line_other_url():
     return (
-        '5.6.7.8 - 10.0.0.2 [10/Oct/2025:13:55:40 +0300] '
+        "5.6.7.8 - 10.0.0.2 [10/Oct/2025:13:55:40 +0300] "
         '"POST /api/v2/user HTTP/1.1" 200 256 "-" "python-requests/2.32" "-" "req-124" "rb-457" 0.377\n'
     )
 

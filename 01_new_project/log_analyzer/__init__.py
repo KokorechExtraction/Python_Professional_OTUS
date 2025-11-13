@@ -1,17 +1,17 @@
 from .log_analyzer import (
-    configure_structlog,
-    config_parser,
-    parse_line,
-    report_maker,
-    read_lines,
-    find_latest_log,
-    write_report,
-    handle_exception,
-    main,
-    config,
     FILE_NAME_PATTERN,
     LOG_PATTERN,
     REQUEST_PATTERN,
+    config,
+    config_parser,
+    configure_structlog,
+    find_latest_log,
+    handle_exception,
+    main,
+    parse_line,
+    read_lines,
+    report_maker,
+    write_report,
 )
 
 __all__ = [
