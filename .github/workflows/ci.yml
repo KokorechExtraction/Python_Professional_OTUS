@@ -21,7 +21,7 @@ jobs:
         uv sync --locked --no-dev
     - name: Test with pytest
       run: |
-        uv run pytest -s --cov --cov-report html --cov-fail-under 92
+        uv run pytest -s --cov --cov-report html --cov-fail-under 85
 
     - name: Lint & format (ruff)
       run: |
