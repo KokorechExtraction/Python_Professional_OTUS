@@ -3,8 +3,8 @@ import sys
 
 import pytest
 
-# Импортируем модуль. Если у тебя другое имя файла — поменяй строку ниже.
-import log_analyzer.log_analyzer as m
+
+import log_analyzer.log_analyzer.log_analyzer as m
 
 
 def test_parse_line(sample_line, logger, monkeypatch):
