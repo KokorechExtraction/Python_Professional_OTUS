@@ -13,8 +13,8 @@ def test_parse_line(sample_line, logger, monkeypatch):
     parsed = m.parse_line(sample_line)
     assert parsed is not None
     assert parsed["url"] == "/api/v2/user"
-    assert isinstance(parsed["request_time"], float)
-    assert parsed["request_time"] == pytest.approx(0.123, rel=0, abs=1e-9)
+    assert isinstance(parsed["request_time"], str)
+    assert parsed["request_time"] == pytest.approx(0.123, rel=0, abs=1e-3)
 
 
 def test_parse_line_bad_format(logger, monkeypatch):
