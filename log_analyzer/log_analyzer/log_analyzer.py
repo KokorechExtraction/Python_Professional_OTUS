@@ -10,13 +10,13 @@ import os
 import re
 import sys
 
+from collections.abc import Callable, Iterator
 from json import dumps
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from statistics import median
 from types import TracebackType
-from typing import Type, Any, Iterator, cast
-from collections.abc import Callable
+from typing import Any
 
 import structlog
 
@@ -30,7 +30,7 @@ LOG_PATTERN = re.compile(
 REQUEST_PATTERN = re.compile(r"^\S+\s+(\S+)")
 
 
-def handle_exception(exc_type: Type[BaseException], exc_value: BaseException, exc_traceback: TracebackType | None) -> Any:
+def handle_exception(exc_type: type[BaseException], exc_value: BaseException, exc_traceback: TracebackType | None) -> Any:
     log.error(
         "Oh shit! I'm sorry! This shit was interrupted by leather bag",
         exc_info=(exc_type, exc_value, exc_traceback),

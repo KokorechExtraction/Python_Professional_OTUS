@@ -3,7 +3,6 @@ import sys
 
 import pytest
 
-
 import log_analyzer.log_analyzer.log_analyzer as m
 
 
