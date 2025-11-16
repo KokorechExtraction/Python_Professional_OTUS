@@ -30,7 +30,9 @@ LOG_PATTERN = re.compile(
 REQUEST_PATTERN = re.compile(r"^\S+\s+(\S+)")
 
 
-def handle_exception(exc_type: type[BaseException], exc_value: BaseException, exc_traceback: TracebackType | None) -> Any:
+def handle_exception(
+    exc_type: type[BaseException], exc_value: BaseException, exc_traceback: TracebackType | None
+) -> Any:
     log.error(
         "Oh shit! I'm sorry! This shit was interrupted by leather bag",
         exc_info=(exc_type, exc_value, exc_traceback),
@@ -50,19 +52,16 @@ def configure_structlog(log_path: str | None, level: str = "info") -> None:
     root_logger.setLevel(log_level)
     root_logger.handlers.clear()
 
-
     handler: logging.Handler = (
-    RotatingFileHandler(
-        filename=os.path.join(log_path + "/log.json"),
-        maxBytes=10_000_000,
-        backupCount=3,
-        encoding="utf-8",)
-    if log_path
-    else logging.StreamHandler(sys.stdout)
+        RotatingFileHandler(
+            filename=os.path.join(log_path + "/log.json"),
+            maxBytes=10_000_000,
+            backupCount=3,
+            encoding="utf-8",
+        )
+        if log_path
+        else logging.StreamHandler(sys.stdout)
     )
-
-
-
 
     root_logger.addHandler(handler)
 
@@ -115,9 +114,7 @@ def parse_line(line: str) -> dict[str, str] | None:
         log.error("Oh shit! I'm sorry! There is no such line", request=request)
         return None
 
-
     request_time = pattern_match.group(2)
-
 
     return {"url": request_match.group(1), "request_time": request_time}
 
@@ -126,7 +123,7 @@ def report_maker(
     source: Iterator[str], parser: Callable[[str], dict[str, str] | None], report_size: int
 ) -> list[dict[str, int | float | str]]:
     urls: dict[str, list[float]] = {}
-    result: list[dict[str, int | float | str ]] = []
+    result: list[dict[str, int | float | str]] = []
 
     count_all: int = 0
     time_all: int | float = 0
@@ -139,10 +136,6 @@ def report_maker(
         url = parsed_line["url"]
 
         times = float(parsed_line["request_time"])
-
-
-
-
 
         urls.setdefault(url, []).append(times)
 
@@ -170,12 +163,14 @@ def report_maker(
         if count_all > 0:
             some_url.update({"count_perc": round(((int(some_url["count"]) * 100) / count_all), 3)})
         if time_all > 0:
-            some_url.update({"time_perc": round(((float(some_url["time_sum"]) * 100) / time_all), 3)})
+            some_url.update(
+                {"time_perc": round(((float(some_url["time_sum"]) * 100) / time_all), 3)}
+            )
 
     return sorted(result, key=lambda d: d["time_sum"], reverse=True)[:report_size]
 
 
-def read_lines(path: str | None, encoding: str="utf-8") -> Iterator[str]:
+def read_lines(path: str | None, encoding: str = "utf-8") -> Iterator[str]:
     if not path:
         log.error("Oh shit! I'm sorry! There is no such path to log file")
         return None
