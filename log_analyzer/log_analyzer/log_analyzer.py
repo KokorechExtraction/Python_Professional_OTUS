@@ -14,11 +14,13 @@ from json import dumps
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from statistics import median
-from typing import Callable
+from types import TracebackType
+from typing import Type, Any, Iterator, cast
+from collections.abc import Callable
 
 import structlog
 
-config = {"REPORT_SIZE": 1000, "REPORT_DIR": "./reports", "LOG_DIR": "./log"}
+config: dict[str, int | str] = {"REPORT_SIZE": 1000, "REPORT_DIR": "./reports", "LOG_DIR": "./log"}
 
 FILE_NAME_PATTERN = re.compile(r"nginx-access-ui.log-(\d+)(\.\S+)?$")
 # FILE_NAME_PATTERN = re.compile(r'nginx-access-ui.log-(\d+)(\.gz)?$')
@@ -28,14 +30,14 @@ LOG_PATTERN = re.compile(
 REQUEST_PATTERN = re.compile(r"^\S+\s+(\S+)")
 
 
-def handle_exception(exc_type, exc_value, exc_traceback):
+def handle_exception(exc_type: Type[BaseException], exc_value: BaseException, exc_traceback: TracebackType | None) -> Any:
     log.error(
         "Oh shit! I'm sorry! This shit was interrupted by leather bag",
         exc_info=(exc_type, exc_value, exc_traceback),
     )
 
 
-def configure_structlog(log_path: str | None, level: str = "info"):
+def configure_structlog(log_path: str | None, level: str = "info") -> None:
     level_map = {
         "debug": logging.DEBUG,
         "info": logging.INFO,
@@ -48,19 +50,23 @@ def configure_structlog(log_path: str | None, level: str = "info"):
     root_logger.setLevel(log_level)
     root_logger.handlers.clear()
 
-    if log_path:
-        handler = RotatingFileHandler(
-            filename=os.path.join(log_path + "/log.json"),
-            maxBytes=10_000_000,
-            backupCount=3,
-            encoding="utf-8",
-        )
-    else:
-        handler = logging.StreamHandler(sys.stdout)
+
+    handler: logging.Handler = (
+    RotatingFileHandler(
+        filename=os.path.join(log_path + "/log.json"),
+        maxBytes=10_000_000,
+        backupCount=3,
+        encoding="utf-8",)
+    if log_path
+    else logging.StreamHandler(sys.stdout)
+    )
+
+
+
 
     root_logger.addHandler(handler)
 
-    structlog_processors = [
+    structlog_processors: list[Callable[..., Any]] = [
         structlog.processors.add_log_level,
         structlog.processors.TimeStamper(fmt="iso", utc=True),
         structlog.processors.StackInfoRenderer(),
@@ -81,7 +87,7 @@ def config_parser(default_config: dict[str, int | str]) -> dict[str, int | str] 
     parser.add_argument(
         "--config",
         help="Путь к файлу конфигурации",
-        default=r"C:\Users\admin\PycharmProjects\Python_Professional_OTUS\01_new_project\config\config.json",
+        default=r"C:\Users\admin\PycharmProjects\Python_Professional_OTUS\log_analyzer\config\config.json",
     )
     args = parser.parse_args()
     config_path = args.config
@@ -96,7 +102,7 @@ def config_parser(default_config: dict[str, int | str]) -> dict[str, int | str] 
         return None
 
 
-def parse_line(line: str) -> dict[str, str | float] | None:
+def parse_line(line: str) -> dict[str, str] | None:
     pattern_match = LOG_PATTERN.match(line)
 
     if not pattern_match:
@@ -109,41 +115,43 @@ def parse_line(line: str) -> dict[str, str | float] | None:
         log.error("Oh shit! I'm sorry! There is no such line", request=request)
         return None
 
-    try:
-        request_time = float(pattern_match.group(2))
-    except ValueError as e:
-        log.error("Oh shit! I'm sorry! This shit can't be done", e)
-        return None
+
+    request_time = pattern_match.group(2)
+
 
     return {"url": request_match.group(1), "request_time": request_time}
 
 
 def report_maker(
-    source: str, parser: Callable[[str], dict[str, str | float] | None], report_size: int
-) -> list[dict[str, int | float]]:
-    urls: dict[str, list[float] | None] = {}
-    result: list[dict[str, int | float] | None] = []
+    source: Iterator[str], parser: Callable[[str], dict[str, str] | None], report_size: int
+) -> list[dict[str, int | float | str]]:
+    urls: dict[str, list[float]] = {}
+    result: list[dict[str, int | float | str ]] = []
 
     count_all: int = 0
-    time_all: int = 0
+    time_all: int | float = 0
 
     for line in source:
         parsed_line = parser(line)
         if not parsed_line:
             continue
 
-        url = parsed_line.get("url")
-        time = float(parsed_line.get("request_time"))
-        if not urls.get(url):
-            urls[url] = []
-        urls[url].append(time)
+        url = parsed_line["url"]
+
+        times = float(parsed_line["request_time"])
+
+
+
+
+
+        urls.setdefault(url, []).append(times)
 
     for url, time in urls.items():
-        count = len(time)
-        time_sum = sum(time)
-        time_avg = time_sum / count
-        time_max = max(time)
-        time_med = median(time)
+        count: int = len(time)
+        time_sum: float = sum(time)
+        time_avg: float = time_sum / count
+        time_max: float = max(time)
+        time_med: float = median(time)
         count_all += count
         time_all += time_sum
 
@@ -158,16 +166,19 @@ def report_maker(
             }
         )
 
-    for url in result:
+    for some_url in result:
         if count_all > 0:
-            url.update({"count_perc": round(((url.get("count") * 100) / count_all), 3)})
+            some_url.update({"count_perc": round(((int(some_url["count"]) * 100) / count_all), 3)})
         if time_all > 0:
-            url.update({"time_perc": round(((url.get("time_sum") * 100) / time_all), 3)})
+            some_url.update({"time_perc": round(((float(some_url["time_sum"]) * 100) / time_all), 3)})
 
     return sorted(result, key=lambda d: d["time_sum"], reverse=True)[:report_size]
 
 
-def read_lines(path: str, encoding="utf-8") -> str | None:
+def read_lines(path: str | None, encoding: str="utf-8") -> Iterator[str]:
+    if not path:
+        log.error("Oh shit! I'm sorry! There is no such path to log file")
+        return None
     log.info("Yeah, beach! This script is starting to read some shit!")
     with (
         gzip.open(path, "rt", encoding=encoding)
@@ -198,28 +209,28 @@ def write_report(file: str, template: str, data: str) -> None:
         f.write(body)
 
 
-def main():
+def main() -> None:
     if not config_parser(config):
         sys.exit()
 
     try:
-        log_file = find_latest_log(os.path.join(config.get("LOG_DIR") + "/"))
+        log_file = find_latest_log(os.path.join(str(config["LOG_DIR"]) + "/"))
     except FileNotFoundError as e:
         log.error("Oh shit! I'm sorry! There is no such path to log file", e=e)
         sys.exit()
     if not log_file:
         log.error("Oh shit! I'm sorry! There is no file to analyze")
-    report = report_maker(read_lines(log_file), parse_line, config.get("REPORT_SIZE"))
+    report = report_maker(read_lines(log_file), parse_line, int(config["REPORT_SIZE"]))
 
     write_report(
-        os.path.join(config.get("REPORT_DIR") + "/report.html"),
-        "C:/Users/admin/PycharmProjects/Python_Professional_OTUS/01_new_project/templates/report.html",
+        os.path.join(str(config["REPORT_DIR"]) + "/report.html"),
+        "C:/Users/admin/PycharmProjects/Python_Professional_OTUS/log_analyzer/templates/report.html",
         dumps(report),
     )
 
 
 if __name__ == "__main__":
-    configure_structlog(config.get("LOG_DIR"), level="info")
+    configure_structlog(str(config["LOG_DIR"]), level="info")
     log = structlog.get_logger()
     sys.excepthook = handle_exception
     main()

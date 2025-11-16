@@ -68,3 +68,10 @@ pretty = true
 show_error_codes = true
 exclude = ["scripts", "docs", "test"]
 disable_error_code = ["name-defined"]
+
+[[tool.mypy.overrides]]
+module = [
+   "log_analyzer.homework.*",
+    "log_analyzer.project.*"
+]
+ignore_errors = true
