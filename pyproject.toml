@@ -72,6 +72,7 @@ disable_error_code = ["name-defined"]
 [[tool.mypy.overrides]]
 module = [
    "log_analyzer.homework.*",
-    "log_analyzer.project.*"
+    "log_analyzer.project.*",
+    "type_annotations_challenge.*"
 ]
 ignore_errors = true

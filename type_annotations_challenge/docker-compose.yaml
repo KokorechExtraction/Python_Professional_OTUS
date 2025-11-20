@@ -1,0 +1,12 @@
+services:
+  otus-python-pro-lecture1:
+    environment:
+      - PATH=/root/.pyenv/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '8888:8888'
+    volumes:
+      - ./lecture.ipynb:/src/lecture.ipynb
+      - ./project:/src/project
