@@ -1,0 +1,29 @@
+from __future__ import annotations
+from typing import Protocol, Iterable
+from clean_warehouse.src.warehouse.domain.model import Product, Customer, Order
+
+class ProductRepository(Protocol):
+    def get_by_id(self, product_id: int) -> Product | None:...
+    def list_by_ids(self, ids: Iterable[int]) -> list[Product]:...
+    def save(self, product: Product) -> None:...
+
+
+class CustomerRepository(Protocol):
+    def get_by_id(self, customer_id: int) -> Customer:...
+
+
+class OrderRepository(Protocol):
+    def add(self, order: Order) -> None:...
+
+
+class UnitOfWork(Protocol):
+    products: ProductRepository
+    customer: CustomerRepository
+    orders: OrderRepository
+
+
+    def __enter__(self) -> "UnitOfWork":...
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:...
+
+    def commit(self) -> None:...
+    def rollback(self) -> None:...
