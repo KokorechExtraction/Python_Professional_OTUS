@@ -1,0 +1,87 @@
+[project]
+name = "python-professional-otus"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dj-database-url>=3.1.0",
+    "django>=6.0.1",
+    "dotenv>=0.9.9",
+    "flask>=3.1.2",
+    "gunicorn>=23.0.0",
+    "pre-commit>=4.3.0",
+    "psycopg>=3.3.2",
+    "redis>=7.1.0",
+    "structlog>=25.4.0",
+    "websockets>=15.0.1",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18.2",
+    "pytest>=9.0.0",
+    "pytest-cov>=7.0.0",
+    "pytest-mock>=3.15.1",
+    "ruff>=0.14.4",
+]
+
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+fix = true
+show-fixes = true
+
+lint.select = [
+  "E",   # pycodestyle
+  "F",   # pyflakes
+  "UP",  # pyupgrade,
+  "I",   # isort
+  "B",   # bugbear — частые ошибки логики
+]
+
+lint.ignore = ["E501"]
+
+exclude = [
+  ".git",
+  "__pycache__",
+  "build",
+  "dist",
+  "migrations",
+  "venv",
+]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+lines-between-types = 1
+order-by-type = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+[tool.mypy]
+python_version = "3.13"
+disallow_untyped_defs = true
+check_untyped_defs = true
+ignore_missing_imports = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
+strict_optional = true
+no_implicit_optional = true
+pretty = true
+show_error_codes = true
+exclude = ["scripts", "docs", "test"]
+disable_error_code = ["name-defined"]
+
+[[tool.mypy.overrides]]
+module = [
+   "log_analyzer.homework.*",
+    "log_analyzer.project.*",
+    "type_annotations_challenge.*"
+]
+ignore_errors = true

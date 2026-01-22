@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+{% block content %}
+    <h3>{{ post.title }}</h3>
+    <p>
+        {{ post.content }}
+    </p>
+
+        <a href="{% url 'edit_post'  post.id %}" class="btn btm-sm btn-warning">Редактировать</a>
+        <a href="{% url 'post_delete'  post.id %}" class="btn btm-sm btn-warning">Удалить</a>
+        <a href="{% url 'index' %}" class="btn btn-secondary mt-3">На главную</a>
+
+
+
+<h2>Теги</h2>
+        <ul class="list-group">
+            {% for tag in post.tags.all %}
+                 <li class="list-group-item">
+                     <h3> {{ post.author_posts }}</h3>
+                     <p> {{ tag.name }}</p>
+                 </li>
+            {% empty %}
+                <li class="list-group-item">Нет тегов</li>
+
+            {% endfor %}
+        </ul>
+
+        <hr>
+        <h2>Коментарии</h2>
+        <ul class="list-group">
+            {% for сomment in comments %}
+                 <li class="list-group-item">
+                     <h3> {{ сomment.author.username }}</h3>
+                     <p> {{ сomment.text }}</p>
+                 </li>
+            {% empty %}
+                <li class="list-group-item">Нет комментариев</li>
+
+             {% endfor %}
+        </ul>
+
+
+
+{% endblock %}

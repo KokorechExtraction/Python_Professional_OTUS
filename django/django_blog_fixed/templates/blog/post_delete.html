@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+
+
+{% block content %}
+     <h2>{{title}} "{{post.content}}"</h2>
+     <p>{{description}}</p>
+     <form method="post" class="mt-4" >
+       {% csrf_token %}
+       <button type="submit" class="btn btn-primary">Удалить</button>
+       <a href="{% url 'post_list' %}">Отмена</a>
+     </form>
+
+
+
+{% endblock %}
