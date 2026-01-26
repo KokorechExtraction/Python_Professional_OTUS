@@ -1,0 +1,8 @@
+services:
+  diabetes-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      API_USER: "demo_user"
+      API_PASS: "demo_pass"
