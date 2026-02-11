@@ -19,4 +19,4 @@ python scripts/rag_agent.py --model_name Qwen/Qwen2.5-1.5B-Instruct --lora_path 
 ```
 
 ## Структура
-См. `report_template.md` и код в `scripts/`.
+См. код в `scripts/`.
